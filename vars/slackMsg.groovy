@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
 def call(Map parameters) {
-  out.println('IN slackMsg')
+  println('IN slackMsg')
 
   def status = parameters.get('status', 'STARTED')
   def msg = parameters.get('msg', '')
