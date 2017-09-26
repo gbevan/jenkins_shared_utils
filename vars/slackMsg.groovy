@@ -1,5 +1,6 @@
+#!/usr/bin/env groovy
 
-def call(String status = 'good', String msg = '') {
+def call(String status = 'STARTED', String msg = '') {
   def color = 'danger'
   if (status == 'STARTED') {
     color = '#FFFF00'
@@ -7,5 +8,5 @@ def call(String status = 'good', String msg = '') {
     color = 'good'
   }
 
-  slackSend color: color, message: "${status}: Job ${currentBuild.fullDisplayName} branch: ${env.BRANCH_NAME}: ${msg}"
+  slackSend(color: color, message: "${status}: Job ${currentBuild.fullDisplayName} branch: ${env.BRANCH_NAME}: ${msg}")
 }
