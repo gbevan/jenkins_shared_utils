@@ -1,7 +1,11 @@
 #!/usr/bin/env groovy
 
-def call(String status = 'STARTED', String msg = '') {
+def call(Map parameters) {
   out.println('IN slackMsg')
+
+  def status = parameters.get('status', 'STARTED')
+  def msg = parameters.get('msg', '')
+
   def color = 'danger'
   if (status == 'STARTED') {
     color = '#FFFF00'
