@@ -4,7 +4,7 @@ def call(Map parameters) {
 
   def status = parameters.get('status', 'STARTED')
   def msg = parameters.get('msg', '')
-  println('slackMsg status ${status}, msg ${msg}')
+  println("slackMsg status ${status}, msg ${msg}")
 
   def color = 'danger'
   if (status == 'STARTED') {
