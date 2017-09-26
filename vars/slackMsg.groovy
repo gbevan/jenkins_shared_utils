@@ -1,10 +1,10 @@
 #!/usr/bin/env groovy
 
 def call(Map parameters) {
-  println('IN slackMsg')
 
   def status = parameters.get('status', 'STARTED')
   def msg = parameters.get('msg', '')
+  println('slackMsg status ${status}, msg ${msg}')
 
   def color = 'danger'
   if (status == 'STARTED') {
