@@ -10,7 +10,8 @@ def call(Map parameters) {
   def color = 'danger'
   if (status == 'STARTED') {
     color = '#FFFF00'
-  } else if (status == 'SUCCESS' || status == 'VERIFIED' || status == 'DEPLOYED') {
+  } else if (status == 'SUCCESS' || status == 'VERIFIED' ||
+             status == 'DEPLOYED' || status == 'PASSED') {
     color = 'good'
   }
 
