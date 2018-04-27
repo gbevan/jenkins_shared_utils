@@ -6,9 +6,9 @@
  *   version: 'version-to-tag-and-release',
  *   approvers: 'user1,user2,users-who-can-approve-release',
  *   onlyBranch: 'master'
- * )
+ * ) { stmts to run on completion of release... }
  */
-def call(Map parameters) {
+def call(Map parameters, body) {
 
   def gitCredId = parameters.get('gitCredId', '')
   def version = parameters.get('version', '')
@@ -66,7 +66,7 @@ def call(Map parameters) {
       }
 
       // sh(script: "docker save sshproxy:${sshproxy.version} | bzip2 > /images/nightlies/sshproxy-${sshproxy.version}.tar.bz2")
-      //slackMsg status: 'DEPLOYED', msg: "Git Tagged ${BLD_TAG}, docker image exported ok"
+      body()
     }
   // }
   //////////////////////////////////////////////////
