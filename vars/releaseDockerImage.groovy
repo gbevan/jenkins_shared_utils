@@ -82,7 +82,7 @@ def call(Map parameters, body) {
       // def aHost = "tcp://docker.dxc.com:${dockerPort}"
       // echo "aHost: ${aHost}"
       def aDocker = Artifactory.docker server: aServer
-      def aDockerInfo = aDocker.push "${imageName}:${version}", dockerRepo
+      def aDockerInfo = aDocker.push "${dockerRepo}/${imageName}:${version}", dockerRepo
       // def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}", dockerRepo
       aDockerServer.publishBuildInfo aDockerInfo
 
