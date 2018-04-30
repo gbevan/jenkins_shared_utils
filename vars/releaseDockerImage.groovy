@@ -77,9 +77,10 @@ def call(Map parameters, body) {
 
       // Release docker image to registry
       def aDockerServer = Artifactory.docker server: aServer
-      def aDocker = Artifactory.docker credentialsId: 'slmartifactory'
+      // def aDocker = Artifactory.docker credentialsId: 'slmartifactory'
+      def aDocker = Artifactory.docker server: server, [host: "tcp://docker.dxc.com:${dockerPort}"]
       def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${imageName}", dockerRepo
-      // aDockerServer.publishBuildInfo aDockerInfo // Deprecated
+      aDockerServer.publishBuildInfo aDockerInfo
 
       // aServer.dockerPushStep(
       //   image: "${dockerRepo}/${imageName}",
