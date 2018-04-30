@@ -74,14 +74,14 @@ def call(Map parameters, body) {
 
       // sh(script: "docker save sshproxy:${sshproxy.version} | bzip2 > /images/nightlies/sshproxy-${sshproxy.version}.tar.bz2")
       // Release docker image to registry
-      def aServer = Artifactory.server 'slmartifactory'
+      def aServer = Artifactory.server 'slmartifactory-ads-docker'
       def aHost = "tcp://docker.dxc.com:${dockerPort}"
       echo "aHost: ${aHost}"
       def aDocker = Artifactory.docker(
         server: aServer
         // host: aHost
       )
-      aDocker.setHost(aHost)
+      // aDocker.setHost(aHost)
       def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${imageName}:${version}", dockerRepo
       aDockerServer.publishBuildInfo aDockerInfo
 
