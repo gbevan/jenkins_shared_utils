@@ -74,21 +74,10 @@ def call(Map parameters, body) {
       }
 
       // retag docker image for remote registry
-      def imgToPush = "docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}"
+      def imgToPush = "docker.dxc.com:${dockerPort}/${imageName}:${version}"
       sh "docker tag ${imageName}:${version} ${imgToPush}"
-      // sh "docker tag ${imageName}:${version} ${dockerRepo}/${imageName}:${version}"
 
-      // sh(script: "docker save sshproxy:${sshproxy.version} | bzip2 > /images/nightlies/sshproxy-${sshproxy.version}.tar.bz2")
-
-      // Release docker image to registry
-      // def aServer = Artifactory.server 'slmartifactory-ads-docker'
-      // // def aHost = "tcp://docker.dxc.com:${dockerPort}"
-      // // echo "aHost: ${aHost}"
-      // def aDocker = Artifactory.docker server: aServer
-      // def aDockerInfo = aDocker.push "${dockerRepo}/${imageName}:${version}", dockerRepo
-      // // def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}", dockerRepo
-      // aDockerServer.publishBuildInfo aDockerInfo
-
+      // Release to artifactory docker registry
       docker.withRegistry('https://docker.dxc.com:80', 'slmartifactory') {
         def img = docker.image(imgToPush)
         img.push()
