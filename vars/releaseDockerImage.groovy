@@ -5,7 +5,10 @@
  *   gitCredId: 'jenkins-cred-id',
  *   version: 'version-to-tag-and-release',
  *   approvers: 'user1,user2,users-who-can-approve-release',
- *   onlyBranch: 'master'
+ *   onlyBranch: 'master',
+ *   dockerRepo: 'slm-docker',
+ *   dockerPort: '85',
+ *   imageName: 'hello-world:latest'
  * ) { stmts to run on completion of release... }
  */
 def call(Map parameters, body) {
@@ -15,6 +18,9 @@ def call(Map parameters, body) {
   def approvers = parameters.get('approvers', '')
   def onlyBranch = parameters.get('onlyBranch', 'master')
   def waitForMins = parameters.get('waitForMins', 10)
+  def dockerRepo = parameters.get('dockerRepo', 'slm-docker')
+  def dockerPort = parameters.get('dockerPort', '85')
+  def imageName = parameters.get('imageName', '')
 
   echo "in releaseDockerImage()"
 
@@ -57,6 +63,7 @@ def call(Map parameters, body) {
         env.BLD_TAG = "${version}"
         echo "BLD_TAG=${env.BLD_TAG}"
 
+        // Tag release in GitHub
         sh(
           script: '''
             echo git tag "${BLD_TAG}" "${GIT_ORIGIN_COMMIT}"
@@ -66,6 +73,14 @@ def call(Map parameters, body) {
       }
 
       // sh(script: "docker save sshproxy:${sshproxy.version} | bzip2 > /images/nightlies/sshproxy-${sshproxy.version}.tar.bz2")
+      def aServer = Artifactory.server 'slmartifactory'
+
+      // Release docker image to registry
+      def aDocker = Artifactory.docker server: aServer, host: "tcp://docker.dxc.com:${dockerPort}"
+      def aDockerInfo = aDocker.push("${dockerRepo}/${imageName}", dockerRepo)
+
+      // TODO: cleanup docker image
+
       body()
     }
   // }
