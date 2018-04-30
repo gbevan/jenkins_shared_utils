@@ -76,8 +76,16 @@ def call(Map parameters, body) {
       def aServer = Artifactory.server 'slmartifactory'
 
       // Release docker image to registry
-      def aDocker = Artifactory.docker server: aServer, host: "tcp://docker.dxc.com:${dockerPort}"
-      def aDockerInfo = aDocker.push("${dockerRepo}/${imageName}", dockerRepo)
+      def aDockerServer = Artifactory.docker server: aServer
+      def aDocker = Artifactory.docker credentialsId: 'slmartifactory'
+      def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${imageName}", dockerRepo
+      aDockerServer.publishBuildInfo aDockerInfo
+
+      // aServer.dockerPushStep(
+      //   image: "${dockerRepo}/${imageName}",
+      //   host: "tcp://docker.dxc.com:${dockerPort}",
+      //   targetRepo: dockerRepo
+      // )
 
       // TODO: cleanup docker image
 
