@@ -73,7 +73,7 @@ def call(Map parameters, body) {
       }
 
       // retag docker image for remote registry
-      sh "docker tag ${imageName}:${version} docker.dxc.com:${dockerPort}/${imageName}:${version}"
+      sh "docker tag ${imageName}:${version} docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}"
 
       // sh(script: "docker save sshproxy:${sshproxy.version} | bzip2 > /images/nightlies/sshproxy-${sshproxy.version}.tar.bz2")
 
@@ -82,7 +82,7 @@ def call(Map parameters, body) {
       // def aHost = "tcp://docker.dxc.com:${dockerPort}"
       // echo "aHost: ${aHost}"
       def aDocker = Artifactory.docker server: aServer
-      def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${imageName}:${version}", dockerRepo
+      def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}", dockerRepo
       aDockerServer.publishBuildInfo aDockerInfo
 
       // TODO: cleanup docker image
