@@ -27,8 +27,7 @@ def call(Map parameters, body) {
   def imageName = parameters.get('imageName', '')
   def tarArtFolder = parameters.get('tarArtFolder', '')
 
-  //////////////////////////////////////////////////
-  // when (BRANCH_NAME == 'master') {
+  when (BRANCH_NAME == 'master') {
     def deploy = true
 
     try {
@@ -114,8 +113,7 @@ def call(Map parameters, body) {
 
       // TODO: cleanup docker image
 
-      body()
+      body()  // callback to caller pipeline
     }
-  // }
-  //////////////////////////////////////////////////
+  }
 }
