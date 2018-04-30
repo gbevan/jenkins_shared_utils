@@ -73,7 +73,7 @@ def call(Map parameters, body) {
       }
 
       // retag docker image for remote registry
-      sh "docker tag ${imageName}:${version} docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}"
+      sh "docker tag ${imageName}:${version} docker.dxc.com:${dockerPort}/${imageName}:${version}"
 
       // sh(script: "docker save sshproxy:${sshproxy.version} | bzip2 > /images/nightlies/sshproxy-${sshproxy.version}.tar.bz2")
 
