@@ -79,7 +79,7 @@ def call(Map parameters, body) {
       def aDockerServer = Artifactory.docker server: aServer
       def aDocker = Artifactory.docker credentialsId: 'slmartifactory'
       def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${imageName}", dockerRepo
-      aDockerServer.publishBuildInfo aDockerInfo
+      // aDockerServer.publishBuildInfo aDockerInfo // Deprecated
 
       // aServer.dockerPushStep(
       //   image: "${dockerRepo}/${imageName}",
