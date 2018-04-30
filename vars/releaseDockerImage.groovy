@@ -68,6 +68,7 @@ def call(Map parameters, body) {
         returnStdout: true
         ).trim()
         echo "CURRENT_GIT_TAG=${CURRENT_GIT_TAG}"
+        env.VERSION = version
         echo "version=${env.version}"
 
         if (CURRENT_GIT_TAG != version) {
@@ -75,8 +76,8 @@ def call(Map parameters, body) {
           // Tag release in GitHub
           sh(
             script: '''
-              echo git tag "${version}" "${GIT_ORIGIN_COMMIT}"
-              echo git push "${GITURLWITHCREDS}" "${version}"
+              git tag "${VERSION}" "${GIT_ORIGIN_COMMIT}"
+              git push "${GITURLWITHCREDS}" "${VERSION}"
             '''
           )
         }
