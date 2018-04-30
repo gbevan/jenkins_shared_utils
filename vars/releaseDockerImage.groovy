@@ -82,7 +82,8 @@ def call(Map parameters, body) {
         // host: aHost
       )
       // aDocker.setHost(aHost)
-      def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${imageName}:${version}", dockerRepo
+      // def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${imageName}:${version}", dockerRepo
+      def aDockerInfo = aDocker.push "${imageName}:${version}", dockerRepo
       aDockerServer.publishBuildInfo aDockerInfo
 
       // aServer.dockerPushStep(
