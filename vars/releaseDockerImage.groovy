@@ -21,6 +21,7 @@ def call(Map parameters, body) {
   def dockerRepo = parameters.get('dockerRepo', 'slm-docker')
   def dockerPort = parameters.get('dockerPort', '85')
   def imageName = parameters.get('imageName', '')
+  // def img = parameters.get('img', '')
 
   echo "in releaseDockerImage()"
 
@@ -73,19 +74,25 @@ def call(Map parameters, body) {
       }
 
       // retag docker image for remote registry
-      // sh "docker tag ${imageName}:${version} docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}"
-      sh "docker tag ${imageName}:${version} ${dockerRepo}/${imageName}:${version}"
+      def imgToPush = "docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}"
+      sh "docker tag ${imageName}:${version} ${imgToPush}"
+      // sh "docker tag ${imageName}:${version} ${dockerRepo}/${imageName}:${version}"
 
       // sh(script: "docker save sshproxy:${sshproxy.version} | bzip2 > /images/nightlies/sshproxy-${sshproxy.version}.tar.bz2")
 
       // Release docker image to registry
-      def aServer = Artifactory.server 'slmartifactory-ads-docker'
-      // def aHost = "tcp://docker.dxc.com:${dockerPort}"
-      // echo "aHost: ${aHost}"
-      def aDocker = Artifactory.docker server: aServer
-      def aDockerInfo = aDocker.push "${dockerRepo}/${imageName}:${version}", dockerRepo
-      // def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}", dockerRepo
-      aDockerServer.publishBuildInfo aDockerInfo
+      // def aServer = Artifactory.server 'slmartifactory-ads-docker'
+      // // def aHost = "tcp://docker.dxc.com:${dockerPort}"
+      // // echo "aHost: ${aHost}"
+      // def aDocker = Artifactory.docker server: aServer
+      // def aDockerInfo = aDocker.push "${dockerRepo}/${imageName}:${version}", dockerRepo
+      // // def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}", dockerRepo
+      // aDockerServer.publishBuildInfo aDockerInfo
+
+      docker.withRegistry('https://docker.dxc.com:80', 'slmartifactory') {
+        def img = docker.image(imgToPush)
+        img.push()
+      }
 
       // TODO: cleanup docker image
 
