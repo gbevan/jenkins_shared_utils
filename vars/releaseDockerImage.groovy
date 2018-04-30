@@ -79,10 +79,10 @@ def call(Map parameters, body) {
 
       // Release docker image to registry
       def aServer = Artifactory.server 'slmartifactory-ads-docker'
-      def aHost = "tcp://docker.dxc.com:${dockerPort}"
-      echo "aHost: ${aHost}"
+      // def aHost = "tcp://docker.dxc.com:${dockerPort}"
+      // echo "aHost: ${aHost}"
       def aDocker = Artifactory.docker server: aServer
-      def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${dockerRepo}/${imageName}:${version}", dockerRepo
+      def aDockerInfo = aDocker.push "docker.dxc.com:${dockerPort}/${imageName}:${version}", dockerRepo
       aDockerServer.publishBuildInfo aDockerInfo
 
       // TODO: cleanup docker image
