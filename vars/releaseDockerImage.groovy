@@ -76,6 +76,7 @@ def call(Map parameters, body) {
       // Release docker image to registry
       def aServer = Artifactory.server 'slmartifactory'
       def aHost = "tcp://docker.dxc.com:${dockerPort}"
+      echo "aHost: ${aHost}"
       def aDocker = Artifactory.docker(
         server: aServer,
         host: aHost
