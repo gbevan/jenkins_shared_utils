@@ -73,14 +73,20 @@ def call(Map parameters, body) {
 
         if (CURRENT_GIT_TAG != version) {
           //////////////////////////
-          // Tag release in GitHub
+          // Tag release in Git
           sh(
             script: '''
               git tag "${VERSION}" "${GIT_ORIGIN_COMMIT}"
-              git push "${GITURLWITHCREDS}" "${VERSION}"
             '''
           )
         }
+
+        // Push the tag to github
+        sh(
+          script: '''
+            git push "${GITURLWITHCREDS}" "${VERSION}"
+          '''
+        )
       }
 
       ////////////////////////////////////////////
