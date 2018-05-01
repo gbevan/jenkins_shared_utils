@@ -87,8 +87,9 @@ def call(Map parameters, body) {
         //     git push "${GITURLWITHCREDS}" "${VERSION}"
         //   '''
         // )
-        body('SKIPPED (Not Yet Tagged for Release)') // callback to calling pipeline
-        return
+          body('SKIPPED (Not Yet Tagged for Release)') // callback to calling pipeline
+          return
+        }
       }
 
       ////////////////////////////////////////////
