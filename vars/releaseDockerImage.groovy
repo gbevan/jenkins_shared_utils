@@ -11,10 +11,10 @@ import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
  *   version: 'version-to-tag-and-release',
  *   approvers: 'user1,user2,users-who-can-approve-release',
  *   onlyBranch: 'master',
- *   dockerRepo: 'slm-docker',
+ *   dockerRepo: 'my-docker',
  *   dockerPort: '85',
  *   imageName: 'hello-world:latest',
- *   tarArtFolder: 'SLM/HelloWord'
+ *   tarArtFolder: 'MyFolder/HelloWord'
  * ) { stmts to run on completion of release... }
  */
 def call(Map parameters, body) {
@@ -28,6 +28,9 @@ def call(Map parameters, body) {
   def dockerPort = parameters.get('dockerPort', '80')
   def imageName = parameters.get('imageName', '')
   def tarArtFolder = parameters.get('tarArtFolder', '')
+  def artHost = parameters.get('artHost', '')
+  def artCredId = parameters.get('artCredId', '')
+  def artServerId = parameters.get('artServerId', '')
 
   when (BRANCH_NAME == 'master') {
     def deploy = false
@@ -91,12 +94,12 @@ def call(Map parameters, body) {
     if (deploy) {
       ////////////////////////////////////////////
       // retag docker image for remote registry
-      def imgToPush = "docker.dxc.com:${dockerPort}/${imageName}:${version}"
+      def imgToPush = "${artHost}:${dockerPort}/${imageName}:${version}"
       sh "docker tag ${imageName}:${version} ${imgToPush}"
 
       ////////////////////////////////////////////
       // Release to artifactory docker registry
-      docker.withRegistry('https://docker.dxc.com:80', 'slmartifactory') {
+      docker.withRegistry("https://${artHost}:${dockerPort}", "${artCredId}") {
         def img = docker.image(imgToPush)
         img.push()
       }
@@ -107,7 +110,7 @@ def call(Map parameters, body) {
 
       ////////////////////////////////////
       // Upload tar to artifactory
-      def aServer = Artifactory.server 'slmartifactory'
+      def aServer = Artifactory.server "${artServerId}"
       def uploadSpec = """{
         "files": [
           {
