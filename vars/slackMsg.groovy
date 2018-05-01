@@ -8,11 +8,12 @@ def call(Map parameters) {
   println("slackMsg status ${status}, msg ${msg}")
 
   def color = 'danger'
-  if (status == 'STARTED') {
+  if (status =~ /^STARTED/) {
     color = '#FFFF00'
-  } else if (status == 'SUCCESS' || status == 'VERIFIED' ||
-             status == 'DEPLOYED' || status == 'PASSED' ||
-             status == 'BUILT') {
+  // } else if (status == 'SUCCESS' || status == 'VERIFIED' ||
+  //            status == 'DEPLOYED' || status == 'PASSED' ||
+  //            status == 'BUILT') {
+  } else if (status =~ /^(SUCCESS|VERIFIED|DEPLOYED|PASSED|BUILT|SKIPPED)/) {
     color = 'good'
   }
 
