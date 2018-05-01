@@ -1,5 +1,7 @@
 #!/usr/bin/env groovy
 
+import org.jenkinsci.plugins.pipeline.modeldefinition.Utils
+
 /**
  * Tags the git repo with version and releases the docker image and exported
  * tar file to Artifactory.
@@ -22,13 +24,58 @@ def call(Map parameters, body) {
   def approvers = parameters.get('approvers', '')
   def onlyBranch = parameters.get('onlyBranch', 'master')
   def waitForMins = parameters.get('waitForMins', 10)
-  def dockerRepo = parameters.get('dockerRepo', 'slm-docker')
-  def dockerPort = parameters.get('dockerPort', '85')
+  def dockerRepo = parameters.get('dockerRepo', 'ads-docker')
+  def dockerPort = parameters.get('dockerPort', '80')
   def imageName = parameters.get('imageName', '')
   def tarArtFolder = parameters.get('tarArtFolder', '')
 
   when (BRANCH_NAME == 'master') {
-    def deploy = true
+    def deploy = false
+
+    /////////////////////////
+    // Get the commit point
+    env.GIT_ORIGIN_COMMIT = sh (
+      script: 'git rev-parse refs/remotes/origin/${BRANCH_NAME}',
+      returnStdout: true
+    ).trim()
+    echo "GIT_ORIGIN_COMMIT=${env.GIT_ORIGIN_COMMIT}"
+
+    env.GIT_URL = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
+    echo "GIT_URL=${env.GIT_URL}"
+
+    withCredentials ([
+      usernameColonPassword(credentialsId: gitCredId, variable: 'GITUSERPASS')
+    ]) {
+      env.GITURLWITHCREDS = sh(
+        returnStdout: true,
+        script: 'echo "${GIT_URL}" | sed -e "s!://!://${GITUSERPASS}@!"'
+      ).trim()
+
+      //////////////////////////////////////
+      // Get any current tag at this commit
+      CURRENT_GIT_TAG = sh (
+        script: '''
+        git fetch --tags "${GITURLWITHCREDS}"
+        git describe --tags --exact-match "${GIT_ORIGIN_COMMIT}" 2>/dev/null | grep -E "^[0-9]" || echo "NO_VERSION_TAG"
+        ''',
+      returnStdout: true
+      ).trim()
+
+      echo "CURRENT_GIT_TAG=${CURRENT_GIT_TAG}"
+      env.VERSION = version
+      echo "version=${env.version}"
+
+      if (CURRENT_GIT_TAG != version) {
+        body("SKIPPED (Not Yet Tagged for Release: ${CURRENT_GIT_TAG} != ${version})") // callback to calling pipeline
+      } else {
+        deploy = true
+      }
+    }
+
+    if (!deploy) {
+      Utils.markStageSkippedForConditional(STAGE_NAME)
+      return
+    }
 
     try {
       timeout(time: waitForMins, unit: 'MINUTES') {
@@ -39,59 +86,6 @@ def call(Map parameters, body) {
     }
 
     if (deploy) {
-      /////////////////////////
-      // Get the commit point
-      env.GIT_ORIGIN_COMMIT = sh (
-        script: 'git rev-parse refs/remotes/origin/${BRANCH_NAME}',
-        returnStdout: true
-      ).trim()
-      echo "GIT_ORIGIN_COMMIT=${env.GIT_ORIGIN_COMMIT}"
-
-      env.GIT_URL = sh(returnStdout: true, script: 'git config remote.origin.url').trim()
-      echo "GIT_URL=${env.GIT_URL}"
-
-      withCredentials ([
-        usernameColonPassword(credentialsId: gitCredId, variable: 'GITUSERPASS')
-      ]) {
-        env.GITURLWITHCREDS = sh(
-          returnStdout: true,
-          script: 'echo "${GIT_URL}" | sed -e "s!://!://${GITUSERPASS}@!"'
-        ).trim()
-
-        //////////////////////////////////////
-        // Get any current tag at this commit
-        CURRENT_GIT_TAG = sh (
-          script: '''
-          git fetch --tags "${GITURLWITHCREDS}"
-          git describe --tags --exact-match "${GIT_ORIGIN_COMMIT}" 2>/dev/null | grep -E "^[0-9]" || echo "NO_VERSION_TAG"
-          ''',
-        returnStdout: true
-        ).trim()
-        echo "CURRENT_GIT_TAG=${CURRENT_GIT_TAG}"
-        env.VERSION = version
-        echo "version=${env.version}"
-
-        if (CURRENT_GIT_TAG != version) {
-        //   //////////////////////////
-        //   // Tag release in Git
-        //   sh(
-        //     script: '''
-        //       git tag "${VERSION}" "${GIT_ORIGIN_COMMIT}"
-        //     '''
-        //   )
-        // }
-        //
-        // // Push the tag to github
-        // sh(
-        //   script: '''
-        //     git push "${GITURLWITHCREDS}" "${VERSION}"
-        //   '''
-        // )
-          body('SKIPPED (Not Yet Tagged for Release)') // callback to calling pipeline
-          return
-        }
-      }
-
       ////////////////////////////////////////////
       // retag docker image for remote registry
       def imgToPush = "docker.dxc.com:${dockerPort}/${imageName}:${version}"
