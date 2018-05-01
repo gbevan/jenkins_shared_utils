@@ -72,21 +72,23 @@ def call(Map parameters, body) {
         echo "version=${env.version}"
 
         if (CURRENT_GIT_TAG != version) {
-          //////////////////////////
-          // Tag release in Git
-          sh(
-            script: '''
-              git tag "${VERSION}" "${GIT_ORIGIN_COMMIT}"
-            '''
-          )
-        }
-
-        // Push the tag to github
-        sh(
-          script: '''
-            git push "${GITURLWITHCREDS}" "${VERSION}"
-          '''
-        )
+        //   //////////////////////////
+        //   // Tag release in Git
+        //   sh(
+        //     script: '''
+        //       git tag "${VERSION}" "${GIT_ORIGIN_COMMIT}"
+        //     '''
+        //   )
+        // }
+        //
+        // // Push the tag to github
+        // sh(
+        //   script: '''
+        //     git push "${GITURLWITHCREDS}" "${VERSION}"
+        //   '''
+        // )
+        body('SKIPPED (Not Yet Tagged for Release)') // callback to calling pipeline
+        return
       }
 
       ////////////////////////////////////////////
@@ -120,7 +122,7 @@ def call(Map parameters, body) {
 
       // TODO: cleanup docker image
 
-      body()  // callback to caller pipeline
+      body('DEPLOYED to Artifactory')  // callback to calling pipeline
     }
   }
 }
