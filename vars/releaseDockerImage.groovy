@@ -83,6 +83,9 @@ def call(Map parameters, body) {
       }
     } catch(errInp) {
       deploy = false
+      body("SKIPPED Aborted by admin or timeout")
+      Utils.markStageSkippedForConditional(STAGE_NAME)
+      return
     }
 
     if (deploy) {
