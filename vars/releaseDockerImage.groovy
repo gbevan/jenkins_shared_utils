@@ -79,7 +79,7 @@ def call(Map parameters, body) {
 
     try {
       timeout(time: waitForMins, unit: 'MINUTES') {
-        input message: "Git Tag and Release Image v${version} to Artifactory?", ok: "Apply", submitter: "${approvers}"
+        input message: "This commit has been tagged. Release Image v${version} to Artifactory?", ok: "Apply", submitter: "${approvers}"
       }
     } catch(errInp) {
       deploy = false
