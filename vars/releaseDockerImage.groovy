@@ -21,6 +21,7 @@ def call(Map parameters, body) {
 
   def gitCredId = parameters.get('gitCredId', '')
   def version = parameters.get('version', '')
+  def releaseVersion = parameters.get('releaseVersion', version)
   def approvers = parameters.get('approvers', '')
   def onlyBranch = parameters.get('onlyBranch', 'master')
   def waitForMins = parameters.get('waitForMins', 10)
@@ -82,7 +83,7 @@ def call(Map parameters, body) {
 
     try {
       timeout(time: waitForMins, unit: 'MINUTES') {
-        input message: "This commit has been tagged. Release Image v${version} to Artifactory?", ok: "Apply", submitter: "${approvers}"
+        input message: "This commit has been tagged. Release Image ${releaseVersion} to Artifactory?", ok: "Apply", submitter: "${approvers}"
       }
     } catch(errInp) {
       deploy = false
@@ -94,8 +95,11 @@ def call(Map parameters, body) {
     if (deploy) {
       ////////////////////////////////////////////
       // retag docker image for remote registry
-      def imgToPush = "${artHost}:${dockerPort}/${imageName}:${version}"
+      def imgToPush = "${artHost}:${dockerPort}/${imageName}:${releaseVersion}"
       sh "docker tag ${imageName}:${version} ${imgToPush}"
+      if (releaseVersion != version) {
+        sh "docker tag ${imageName}:${version} ${imageName}:${releaseVersion}"
+      }
 
       ////////////////////////////////////////////
       // Release to artifactory docker registry
@@ -106,7 +110,7 @@ def call(Map parameters, body) {
 
       ////////////////////////////////////
       // Export docker image to tar
-      sh(script: "docker save ${imageName}:${version} | bzip2 > /images/releases/${imageName}-${version}.tar.bz2")
+      sh(script: "docker save ${imageName}:${releaseVersion} | bzip2 > /images/releases/${imageName}-${releaseVersion}.tar.bz2")
 
       ////////////////////////////////////
       // Upload tar to artifactory
@@ -114,14 +118,20 @@ def call(Map parameters, body) {
       def uploadSpec = """{
         "files": [
           {
-            "pattern": "/images/releases/${imageName}-${version}.tar.bz2",
+            "pattern": "/images/releases/${imageName}-${releaseVersion}.tar.bz2",
             "target": "${tarArtFolder}/"
           }
         ]
       }"""
       aServer.upload(uploadSpec)
 
-      // TODO: cleanup docker image
+      /////////////////////////
+      // Cleanup docker image
+      sh "docker rmi --force ${imgToPush}"
+      sh "docker rmi --force ${imageName}:${version}"
+      if (releaseVersion != version) {
+        sh "docker rmi --force ${imageName}:${releaseVersion}"
+      }
 
       body('DEPLOYED to Artifactory')  // callback to calling pipeline
     }
