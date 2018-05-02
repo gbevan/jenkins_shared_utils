@@ -60,7 +60,7 @@ def call(Map parameters, body) {
       CURRENT_GIT_TAG = sh (
         script: '''
         git fetch --tags "${GITURLWITHCREDS}"
-        git describe --tags --exact-match "${GIT_ORIGIN_COMMIT}" 2>/dev/null | grep -E "^[0-9]" || echo "NO_VERSION_TAG"
+        git describe --tags --exact-match "${GIT_ORIGIN_COMMIT}" 2>/dev/null | grep -E "^[a-zA-Z0-9]" || echo "NO_VERSION_TAG"
         ''',
       returnStdout: true
       ).trim()
