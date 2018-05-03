@@ -22,6 +22,7 @@ def call(Map parameters, body) {
   def gitCredId = parameters.get('gitCredId', '')
   def version = parameters.get('version', '')
   def releaseVersion = parameters.get('releaseVersion', version)
+  def gitTagIsReleaseVersion = parameters.get('gitTagIsReleaseVersion', true)
   def approvers = parameters.get('approvers', '')
   def onlyBranch = parameters.get('onlyBranch', 'master')
   def waitForMins = parameters.get('waitForMins', 10)
@@ -69,8 +70,10 @@ def call(Map parameters, body) {
       env.VERSION = version
       echo "version=${env.version}"
 
-      if (CURRENT_GIT_TAG != version) {
+      if ((!gitTagIsReleaseVersion && CURRENT_GIT_TAG != version)) {
         body("SKIPPED (Not Yet Tagged for Release: ${CURRENT_GIT_TAG} != ${version})") // callback to calling pipeline
+      } else if ((gitTagIsReleaseVersion && CURRENT_GIT_TAG != releaseVersion)) {
+        body("SKIPPED (Not Yet Tagged for Release: ${CURRENT_GIT_TAG} != ${releaseVersion})") // callback to calling pipeline
       } else {
         deploy = true
       }
