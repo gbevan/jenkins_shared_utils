@@ -98,6 +98,7 @@ def call(Map parameters, body) {
     if (deploy) {
       ////////////////////////////////////////////
       // retag docker image for remote registry
+      sh "docker images"
       def imgToPush = "${artHost}:${dockerPort}/${imageName}:${releaseVersion}"
       sh "docker tag ${imageName}:${version} ${imgToPush}"
       if (releaseVersion != version) {
