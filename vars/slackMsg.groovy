@@ -18,8 +18,7 @@ def call(Map parameters) {
   }
 
   def combinedMsg = "${status}: Job ${currentBuild.fullDisplayName} branch: ${branch}: ${msg}"
-  echo "SLACK_SUPPRESS=${env.SLACK_SUPPRESS}"
-  if (env.SLACK_SUPPRESS != 1)
+  if (env.SLACK_SUPPRESS != "1")
     slackSend(color: color, message: combinedMsg)
   else {
     echo combinedMsg
