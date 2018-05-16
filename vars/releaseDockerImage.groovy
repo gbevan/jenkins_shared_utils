@@ -33,6 +33,7 @@ def call(Map parameters, body) {
   def artHost = parameters.get('artHost', '')
   def artCredId = parameters.get('artCredId', '')
   def artServerId = parameters.get('artServerId', '')
+  def scpTarget = parameters.get('scpTarget', '') // user@host:path
 
   when (BRANCH_NAME == 'master') {
     def deploy = false
@@ -114,7 +115,8 @@ def call(Map parameters, body) {
 
       ////////////////////////////////////
       // Export docker image to tar
-      sh(script: "docker save ${imageName}:${releaseVersion} | bzip2 > /images/releases/${imageName}-${releaseVersion}.tar.bz2")
+      def tarFile = "/images/releases/${imageName}-${releaseVersion}.tar.bz2"
+      sh(script: "docker save ${imageName}:${releaseVersion} | bzip2 > ${tarFile}")
 
       ////////////////////////////////////
       // Upload tar to artifactory
@@ -122,12 +124,20 @@ def call(Map parameters, body) {
       def uploadSpec = """{
         "files": [
           {
-            "pattern": "/images/releases/${imageName}-${releaseVersion}.tar.bz2",
+            "pattern": "${tarFile}",
             "target": "${tarArtFolder}/"
           }
         ]
       }"""
       aServer.upload(uploadSpec)
+
+      ///////////////////////////////////////////
+      // If requested, scp to a target location
+      if (scpTarget != "") {
+        sh """
+          scp ${tarFile} ${scpTarget}
+        """
+      }
 
       /////////////////////////
       // Cleanup docker image
