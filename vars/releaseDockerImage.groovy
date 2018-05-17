@@ -107,11 +107,12 @@ def call(Map parameters, body) {
       }
 
       ////////////////////////////////////////////
+      // TODO: 
       // Release to artifactory docker registry
-      docker.withRegistry("https://${artHost}:${dockerPort}", "${artCredId}") {
-        def img = docker.image(imgToPush)
-        img.push()
-      }
+      // docker.withRegistry("https://${artHost}:${dockerPort}", "${artCredId}") {
+      //   def img = docker.image(imgToPush)
+      //   img.push()
+      // }
 
       ////////////////////////////////////
       // Export docker image to tar
@@ -147,7 +148,7 @@ def call(Map parameters, body) {
         sh "docker rmi --force ${imageName}:${releaseVersion}"
       }
 
-      body('DEPLOYED to Artifactory')  // callback to calling pipeline
+      body('DEPLOYED to release target(s)')  // callback to calling pipeline
     }
   }
 }
