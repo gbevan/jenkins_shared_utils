@@ -107,7 +107,7 @@ def call(Map parameters, body) {
       }
 
       ////////////////////////////////////////////
-      // TODO: 
+      // TODO:
       // Release to artifactory docker registry
       // docker.withRegistry("https://${artHost}:${dockerPort}", "${artCredId}") {
       //   def img = docker.image(imgToPush)
@@ -142,6 +142,7 @@ def call(Map parameters, body) {
 
       /////////////////////////
       // Cleanup docker image
+      sh "rm ${tarFile}"
       sh "docker rmi --force ${imgToPush}"
       sh "docker rmi --force ${imageName}:${version}"
       if (releaseVersion != version) {
