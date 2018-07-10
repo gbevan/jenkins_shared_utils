@@ -26,8 +26,8 @@ def call(Map parameters, body) {
   def approvers = parameters.get('approvers', '')
   def onlyBranch = parameters.get('onlyBranch', 'master')
   def waitForMins = parameters.get('waitForMins', 10)
-  def dockerRepo = parameters.get('dockerRepo', 'ads-docker')
-  def dockerPort = parameters.get('dockerPort', '80')
+  def dockerRepo = parameters.get('dockerRepo', 'slm-docker')
+  def dockerPort = parameters.get('dockerPort', '8087')
   def imageName = parameters.get('imageName', '')
   def tarArtFolder = parameters.get('tarArtFolder', '')
   def artHost = parameters.get('artHost', '')
@@ -107,12 +107,11 @@ def call(Map parameters, body) {
       }
 
       ////////////////////////////////////////////
-      // TODO:
       // Release to artifactory docker registry
-      // docker.withRegistry("https://${artHost}:${dockerPort}", "${artCredId}") {
-      //   def img = docker.image(imgToPush)
-      //   img.push()
-      // }
+      docker.withRegistry("https://${artHost}:${dockerPort}", "${artCredId}") {
+        def img = docker.image(imgToPush)
+        img.push()
+      }
 
       ////////////////////////////////////
       // Export docker image to tar
