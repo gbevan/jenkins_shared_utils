@@ -85,16 +85,17 @@ def call(Map parameters, body) {
       return
     }
 
-    // try {
-    //   timeout(time: waitForMins, unit: 'MINUTES') {
-    //     input message: "This commit has been tagged. Release Image ${releaseVersion} to Artifactory?", ok: "Apply", submitter: "${approvers}"
-    //   }
-    // } catch(errInp) {
-    //   deploy = false
-    //   body("SKIPPED Aborted by admin or timeout")
-    //   Utils.markStageSkippedForConditional(STAGE_NAME)
-    //   return
-    // }
+    // KEEP THIS UNTIL NIGHTLIES ARE DISABLED!!!
+    try {
+      timeout(time: waitForMins, unit: 'MINUTES') {
+        input message: "This commit has been tagged. Release Image ${releaseVersion} to Artifactory?", ok: "Apply", submitter: "${approvers}"
+      }
+    } catch(errInp) {
+      deploy = false
+      body("SKIPPED Aborted by admin or timeout")
+      Utils.markStageSkippedForConditional(STAGE_NAME)
+      return
+    }
 
     if (deploy) {
       ////////////////////////////////////////////
