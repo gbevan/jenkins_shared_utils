@@ -34,6 +34,7 @@ def call(Map parameters, body) {
   def artCredId = parameters.get('artCredId', '')
   def artServerId = parameters.get('artServerId', '')
   def scpTarget = parameters.get('scpTarget', '') // user@host:path
+  def promptForRelease = parameters.get('promptForRelease', true)
 
   when (BRANCH_NAME == 'master') {
     def deploy = false
@@ -85,16 +86,18 @@ def call(Map parameters, body) {
       return
     }
 
-    // KEEP THIS UNTIL NIGHTLIES ARE DISABLED!!!
-    try {
-      timeout(time: waitForMins, unit: 'MINUTES') {
-        input message: "This commit has been tagged. Release Image ${releaseVersion} to Artifactory?", ok: "Apply", submitter: "${approvers}"
+    if (promptForRelease) {
+      // KEEP THIS UNTIL NIGHTLIES ARE DISABLED!!!
+      try {
+        timeout(time: waitForMins, unit: 'MINUTES') {
+          input message: "This commit has been tagged. Release Image ${releaseVersion} to Artifactory?", ok: "Apply", submitter: "${approvers}"
+        }
+      } catch(errInp) {
+        deploy = false
+        body("SKIPPED Aborted by admin or timeout")
+        Utils.markStageSkippedForConditional(STAGE_NAME)
+        return
       }
-    } catch(errInp) {
-      deploy = false
-      body("SKIPPED Aborted by admin or timeout")
-      Utils.markStageSkippedForConditional(STAGE_NAME)
-      return
     }
 
     if (deploy) {
