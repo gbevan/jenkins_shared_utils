@@ -30,7 +30,7 @@ def call(Map parameters, body) {
   def dockerPort = parameters.get('dockerPort', '8087')
   def imageName = parameters.get('imageName', '')
   def tarArtFolder = parameters.get('tarArtFolder', '')
-  def tarArtDeploy = parameter.get('tarArtDeploy', true)
+  def tarArtDeploy = parameters.get('tarArtDeploy', true)
   def artHost = parameters.get('artHost', '')
   def artCredId = parameters.get('artCredId', '')
   def artServerId = parameters.get('artServerId', '')
