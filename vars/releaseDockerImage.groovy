@@ -30,10 +30,12 @@ def call(Map parameters, body) {
   def dockerPort = parameters.get('dockerPort', '8087')
   def imageName = parameters.get('imageName', '')
   def tarArtFolder = parameters.get('tarArtFolder', '')
+  def tarArtDeploy = parameter.get('tarArtDeploy', true)
   def artHost = parameters.get('artHost', '')
   def artCredId = parameters.get('artCredId', '')
   def artServerId = parameters.get('artServerId', '')
   def scpTarget = parameters.get('scpTarget', '') // user@host:path
+  def scpDeploy = parameters.get('scpDeploy', true)
   def promptForRelease = parameters.get('promptForRelease', true)
 
   when (BRANCH_NAME == 'master') {
@@ -119,28 +121,32 @@ def call(Map parameters, body) {
 
       ////////////////////////////////////
       // Export docker image to tar
-      def tarFile = "/images/releases/${imageName}-${releaseVersion}.tar.bz2"
-      sh(script: "docker save ${imageName}:${releaseVersion} | bzip2 > ${tarFile}")
+      if (tarArtDeploy) {
+        def tarFile = "/images/releases/${imageName}-${releaseVersion}.tar.bz2"
+        sh(script: "docker save ${imageName}:${releaseVersion} | bzip2 > ${tarFile}")
 
-      ////////////////////////////////////
-      // Upload tar to artifactory
-      def aServer = Artifactory.server "${artServerId}"
-      def uploadSpec = """{
-        "files": [
-          {
-            "pattern": "${tarFile}",
-            "target": "${tarArtFolder}/"
-          }
-        ]
-      }"""
-      aServer.upload(uploadSpec)
+        ////////////////////////////////////
+        // Upload tar to artifactory
+        def aServer = Artifactory.server "${artServerId}"
+        def uploadSpec = """{
+          "files": [
+            {
+              "pattern": "${tarFile}",
+              "target": "${tarArtFolder}/"
+            }
+          ]
+        }"""
+        aServer.upload(uploadSpec)
+      }
 
-      ///////////////////////////////////////////
-      // If requested, scp to a target location
-      if (scpTarget != "") {
-        sh """
-          scp ${tarFile} ${scpTarget}
-        """
+      if (scpDeploy) {
+        ///////////////////////////////////////////
+        // If requested, scp to a target location
+        if (scpTarget != "") {
+          sh """
+            scp ${tarFile} ${scpTarget}
+          """
+        }
       }
 
       /////////////////////////
