@@ -25,7 +25,7 @@ def call(Map parameters, body) {
   def gitTagIsReleaseVersion = parameters.get('gitTagIsReleaseVersion', true)
   def approvers = parameters.get('approvers', '')
   def onlyBranch = parameters.get('onlyBranch', 'master')
-  def waitForMins = parameters.get('waitForMins', 10)
+  def waitForMins = parameters.get('waitForMins', 60)
   def dockerRepo = parameters.get('dockerRepo', 'slm-docker')
   def dockerPort = parameters.get('dockerPort', '8087')
   def imageName = parameters.get('imageName', '')
