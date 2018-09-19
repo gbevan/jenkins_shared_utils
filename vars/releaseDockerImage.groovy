@@ -151,11 +151,11 @@ def call(Map parameters, body) {
 
       /////////////////////////
       // Cleanup docker image
-      sh "rm ${tarFile}"
-      sh "docker rmi --force ${imgToPush}"
-      sh "docker rmi --force ${imageName}:${version}"
+      sh "rm ${tarFile} || /bin/true"
+      sh "docker rmi --force ${imgToPush} || /bin/true"
+      sh "docker rmi --force ${imageName}:${version} || /bin/true"
       if (releaseVersion != version) {
-        sh "docker rmi --force ${imageName}:${releaseVersion}"
+        sh "docker rmi --force ${imageName}:${releaseVersion} || /bin/true"
       }
 
       body('DEPLOYED to release target(s)')  // callback to calling pipeline
