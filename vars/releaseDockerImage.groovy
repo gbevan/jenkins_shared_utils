@@ -121,8 +121,8 @@ def call(Map parameters, body) {
 
       ////////////////////////////////////
       // Export docker image to tar
+      def tarFile = "/images/releases/${imageName}-${releaseVersion}.tar.bz2"
       if (tarArtDeploy) {
-        def tarFile = "/images/releases/${imageName}-${releaseVersion}.tar.bz2"
         sh(script: "docker save ${imageName}:${releaseVersion} | bzip2 > ${tarFile}")
 
         ////////////////////////////////////
